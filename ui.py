@@ -28,6 +28,7 @@ class MyWindow(QMainWindow, form_class):
         self.timer.timeout.connect(self.inquiry)
 
         self.Qprice.textChanged.connect(self.lineeditTextFunction)
+        self.Qamount.textChanged.connect(self.lineeditTextFunction)
 
         # 현재가 조회
         self.inquiry_btn.clicked.connect(self.inquiry)
@@ -56,16 +57,19 @@ class MyWindow(QMainWindow, form_class):
 
 
     def lineeditTextFunction(self):
-        self.Qprice.setText(self.Qprice.text())
-
+        self.buy_btn.clicked.connect(self.buy_btn_clicked)
+        self.sell_btn.clicked.connect(self.sell_btn_clicked)
 
     # 지정가 매수
     def buy_btn_clicked(self):
-        data = float(self.Qprice.text())
-        order = binance.create_limit_buy_order('ETH/BTC', 50, data)
+        price_data = float(self.Qprice.text())
+        amount_data = float(self.Qamount.text())
+        order = binance.create_limit_buy_order('ETH/BTC', amount_data, price_data)
         print(order)
         resp = binance.fetch_order(74813964, 'ETH/BTC')
         print(resp)
+
+        QMessageBox.information(self, '매수 확인 메세지', '매수 성공')
 
     # 매수 취소
     def buy_cancel_btn_clicked(self):
@@ -74,8 +78,9 @@ class MyWindow(QMainWindow, form_class):
 
     # 지정가 매도
     def sell_btn_clicked(self):
-        data = float(self.Qprice.text())
-        order = binance.create_market_sell_order('ETH/BTC', 50, data)
+        price_data = float(self.Qprice.text())
+        amount_data = float(self.Qamount.text())
+        order = binance.create_market_sell_order('ETH/BTC', amount_data, price_data)
         print(order)
         resp = binance.fetch_order(74813964, 'ETH/BTC')
         print(resp)
