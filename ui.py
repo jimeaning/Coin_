@@ -12,14 +12,18 @@ form_class = uic.loadUiType("CoinUi.ui")[0]
 
 #api
 binance = ccxt.binance({
-    'apiKey' : 'HDOOTS8GppfdMzUrLGfw9ZZFvjJDB2Z8bhIa5Zix2dIvwgbmJPIsHGSAuUWDoie4',
-    'secret' : 'CU48p99aBAiDo9sbpdzcE8scSINa2gFmePEhM15zp1iQIJtxPu9CDzi0HU4MAX64',
+    'apiKey' : 'zQ73OitWm4NVUVTsFsaFn2hr5pXpR97goV8fY98AcA8Sd1cGulAlnZIah2ld1EyE',
+    'secret' : '4Ztwf0iqU5sYdxcqMTvfKjBNYQehzboxufe1SwtWHrYXSuqcLvDT3K1F5UmUFXyd',
 })
+
+balance = binance.fetch_balance()
+print(balance['ETH']['free'], balance['ETH']['used'], balance['ETH']['total'])
 
 class MyWindow(QMainWindow, form_class):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        self.initUi()
         self.setWindowTitle('코인 거래 프로그램')
         self.setWindowIcon(QIcon("icon.png"))
 
@@ -27,49 +31,30 @@ class MyWindow(QMainWindow, form_class):
         self.timer.start(1000)
         self.timer.timeout.connect(self.inquiry)
 
-        self.Qprice.textChanged.connect(self.lineeditTextFunction)
-        self.Qamount.textChanged.connect(self.lineeditTextFunction)
-
-        # 현재가 조회
-        self.inquiry_btn.clicked.connect(self.inquiry)
-
         self.show()
 
 
     def initUi(self):
-        buy_btn = QPushButton("매수", self)
-        buy_btn.clicked.connect(self.buy_btn_clicked) # 클릭 시 실행할 function
-
-        sell_btn = QPushButton("매도", self)
-        sell_btn.clicked.connect(self.sell_btn_clicked)
-
-        buy_cancel_btn = QPushButton("취소", self)
-        buy_cancel_btn.clicked.connect(self.buy_cancel_btn_clicked)
-
-        sell_cancel_btn = QPushButton("취소", self)
-        sell_cancel_btn.clicked.connect(self.sell_cancel_btn_clicked)
-
-        buy_end_btn = QPushButton("청산", self)
-        buy_end_btn.clicked.connect(self.buy_end_btn_clicked)
-
-        sell_end_btn = QPushButton("청산", self)
-        sell_end_btn.clicked.connect(self.sell_end_btn_clicked)
-
-
-    def lineeditTextFunction(self):
+        # 현재가 조회
+        self.inquiry_btn.clicked.connect(self.inquiry)
+        # 매수
         self.buy_btn.clicked.connect(self.buy_btn_clicked)
+        # 매도
         self.sell_btn.clicked.connect(self.sell_btn_clicked)
+
+        #self.Qprice.textChanged.connect(self.lineeditTextFunction)
+        #self.Qamount.textChanged.connect(self.lineeditTextFunction)
+
+    #def lineeditTextFunction(self):
+        #self.price_la.setText(self.price_data.text)
+
 
     # 지정가 매수
     def buy_btn_clicked(self):
-        price_data = float(self.Qprice.text())
-        amount_data = float(self.Qamount.text())
-        order = binance.create_limit_buy_order('ETH/BTC', amount_data, price_data)
+        order = binance.create_limit_buy_order('BTC/BUSD', self.Qamount.text(), self.Qprice.text())
         print(order)
-        resp = binance.fetch_order(74813964, 'ETH/BTC')
-        print(resp)
-
-        QMessageBox.information(self, '매수 확인 메세지', '매수 성공')
+        self.Qprice.clear()
+        self.Qamount.clear()
 
     # 매수 취소
     def buy_cancel_btn_clicked(self):
@@ -78,21 +63,21 @@ class MyWindow(QMainWindow, form_class):
 
     # 지정가 매도
     def sell_btn_clicked(self):
-        price_data = float(self.Qprice.text())
-        amount_data = float(self.Qamount.text())
-        order = binance.create_market_sell_order('ETH/BTC', amount_data, price_data)
+        order = binance.create_limit_sell_order('BTC/BUSD', self.Qamount.text(), self.Qprice.text())
         print(order)
-        resp = binance.fetch_order(74813964, 'ETH/BTC')
-        print(resp)
+        #resp = binance.fetch_order(1272630444, 'ETH/BUSD')
+        #print(resp)
+        self.Qprice.clear()
+        self.Qamount.clear()
 
-    # 현재가 조회
+    # 현재가 조회랑 현재 시간
     def inquiry(self):
+        price = binance.fetch_ticker("ETH/BTC")
+        self.label.setText("현재가: " + str(price['close']))
+
         cur_time = QTime.currentTime()
         str_time = cur_time.toString("현재 시간 hh:mm:ss")
         self.statusBar().showMessage(str_time)
-
-        price = binance.fetch_ticker('ETH/BTC')
-        self.label.setText("비트코인 현재가: " + str(price['close']))
 
 
 if __name__ == '__main__':

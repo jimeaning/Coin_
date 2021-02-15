@@ -118,10 +118,10 @@
    <widget class="QLabel" name="price_la">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>190</y>
+      <x>30</x>
+      <y>310</y>
       <width>211</width>
-      <height>41</height>
+      <height>71</height>
      </rect>
     </property>
     <property name="text">
